@@ -1,7 +1,7 @@
 spring:
   datasource:
     url: jdbc:h2:mem:project
-    username: sa
-    password: sa
+    username: ruslan
+    password: rus123
   h2:
     console.enabled: true
