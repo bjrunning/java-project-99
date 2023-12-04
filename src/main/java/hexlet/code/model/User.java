@@ -1,11 +1,13 @@
 package hexlet.code.model;
 
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -35,6 +37,7 @@ public class User implements BaseEntity, UserDetails {
 
     private String lastName;
 
+    @Column(unique = true)
     @NotBlank
     @Email
     private String email;
