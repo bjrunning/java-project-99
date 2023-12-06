@@ -6,6 +6,7 @@ plugins {
     checkstyle
     jacoco
     id("io.freefair.lombok") version "8.4"
+    id ("com.adarshr.test-logger") version "3.2.0"
     id("org.springframework.boot") version "3.1.5"
     id("io.spring.dependency-management") version "1.1.3"
 }
@@ -36,6 +37,7 @@ dependencies {
     implementation("net.datafaker:datafaker:2.0.1")
     implementation("org.instancio:instancio-junit:3.3.0")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql:42.6.0")

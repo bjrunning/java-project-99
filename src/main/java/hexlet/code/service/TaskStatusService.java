@@ -3,9 +3,11 @@ package hexlet.code.service;
 import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
+import hexlet.code.exception.MethodNotAllowedException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
+import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,9 @@ public class TaskStatusService {
 
     @Autowired
     private TaskStatusMapper statusMapper;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     public List<TaskStatusDTO> getAll() {
         List<TaskStatus> statuses = statusRepository.findAll();
@@ -49,6 +54,9 @@ public class TaskStatusService {
     }
 
     public void delete(Long id) {
+        if (!taskRepository.findByTaskStatusId(id).isEmpty()) {
+            throw new MethodNotAllowedException("You cannot delete a status. The status is associated with tasks.");
+        }
         statusRepository.deleteById(id);
     }
 
