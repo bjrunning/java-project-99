@@ -3,4 +3,15 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/5142a5391ecfe79c3fbd/maintainability)](https://codeclimate.com/github/bjrunning/java-project-99/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/5142a5391ecfe79c3fbd/test_coverage)](https://codeclimate.com/github/bjrunning/java-project-99/test_coverage)
 
+## Task Manager
+
+Task Manager is a task management system. It allows you to set tasks, assign performers and change their statuses. To work with the system, registration and authentication are required.
+
+This is an educational project based on the Spring Framework.
+
+## Project is available online
+
 Task Manager: https://task-manager-2i7v.onrender.com
+
+login: `hexlet@example.com`
+password: `qwerty`
