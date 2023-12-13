@@ -9,7 +9,7 @@ plugins {
     id("io.freefair.lombok") version "8.4"
     id("org.springframework.boot") version "3.1.5"
     id("io.spring.dependency-management") version "1.1.3"
-    id("io.sentry.jvm.gradle") version "3.14.0"
+    id("io.sentry.jvm.gradle") version "4.0.0"
 }
 
 group = "hexlet.code"
