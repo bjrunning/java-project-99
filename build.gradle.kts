@@ -58,11 +58,11 @@ buildscript {
 }
 
 sentry {
-    includeSourceContext.set(true)
+    includeSourceContext = true
 
-    org.set("bjrunning")
-    projectName.set("task-manager")
-    authToken.set(System.getenv("SENTRY_AUTH_TOKEN"))
+    org = "bjrunning"
+    projectName = "task-manager"
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
 
 tasks.sentryBundleSourcesJava {
