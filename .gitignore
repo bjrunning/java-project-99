@@ -3,4 +3,4 @@ build
 .idea
 .gitattributes
 HELP.md
-node_modules/
+node_modules
