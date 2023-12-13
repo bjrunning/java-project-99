@@ -58,15 +58,14 @@ buildscript {
 }
 
 sentry {
+    // Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
+    // This enables source context, allowing you to see your source
+    // code as part of your stack traces in Sentry.
     includeSourceContext = true
 
     org = "bjrunning"
-    projectName = "task-manager"
+    projectName = "java-spring-boot"
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
-}
-
-tasks.sentryBundleSourcesJava {
-    enabled = System.getenv("SENTRY_AUTH_TOKEN") != null
 }
 
 tasks.test {
