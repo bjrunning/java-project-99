@@ -28,7 +28,6 @@ import java.util.Set;
         componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-
 @Getter
 public abstract class TaskMapper {
 
@@ -76,4 +75,5 @@ public abstract class TaskMapper {
                 .map(l -> l.getId())
                 .toList();
     }
+
 }

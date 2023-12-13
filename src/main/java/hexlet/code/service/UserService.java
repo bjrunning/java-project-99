@@ -1,17 +1,13 @@
-
 package hexlet.code.service;
 
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
-import hexlet.code.exception.MethodNotAllowedException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
-import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +22,6 @@ public class UserService {
     private final UserMapper userMapper;
 
     private final PasswordEncoder encoder;
-
-    private final TaskRepository taskRepository;
 
     public List<UserDTO> getAll() {
         List<User> users = userRepository.findAll();
@@ -65,13 +59,8 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        if (!taskRepository.findByAssigneeId(id).isEmpty()) {
-            throw new MethodNotAllowedException("You cannot delete a user. The user is associated with tasks.");
-        }
-        try {
-            userRepository.deleteById(id);
-        } catch (DataIntegrityViolationException ex) {
-            throw new MethodNotAllowedException("You cannot delete a user. The user is associated with tasks.");
-        }
+
+        userRepository.deleteById(id);
     }
+
 }

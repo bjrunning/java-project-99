@@ -28,8 +28,8 @@ public class AuthenticationController {
     public String logIn(
             @Parameter(description = "Your login and password")
             @RequestBody AuthRequest authRequest) {
-        var authentication = new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
-                authRequest.getPassword());
+        var authentication = new UsernamePasswordAuthenticationToken(
+                authRequest.getUsername(), authRequest.getPassword());
 
         authenticationManager.authenticate(authentication);
 

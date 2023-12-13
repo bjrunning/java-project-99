@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,10 +41,12 @@ public class UserController {
     @Operation(summary = "Get list of all users")
     @ApiResponse(responseCode = "200", description = "List of all users")
     @GetMapping("")
-    public List<UserDTO> index() {
-        return userService.getAll();
+    public ResponseEntity<List<UserDTO>> index() {
+        List<UserDTO> userDTOList = userService.getAll();
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("X-Total-Count", String.valueOf(userDTOList.size()))
+                .body(userDTOList);
     }
-
 
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Get specific user by his id")
@@ -82,6 +85,7 @@ public class UserController {
             @PathVariable Long id,
             @Parameter(description = "User data to update")
             @Valid @RequestBody UserUpdateDTO data) {
+
         return userService.update(id, data);
     }
 

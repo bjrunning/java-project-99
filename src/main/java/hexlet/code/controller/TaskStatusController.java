@@ -95,4 +95,5 @@ public class TaskStatusController {
             @PathVariable Long id) {
         statusService.delete(id);
     }
+
 }
