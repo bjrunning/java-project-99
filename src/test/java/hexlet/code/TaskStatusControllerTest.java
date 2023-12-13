@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,11 +66,15 @@ public class TaskStatusControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String body = result.getResponse().getContentAsString();
+        String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         assertThatJson(body).and(
                 a -> a.node("name").isEqualTo(testStatus.getName()),
                 a -> a.node("slug").isEqualTo(testStatus.getSlug())
         );
+
+        mockMvc.perform(delete("/api/task_statuses/" + testStatus.getId()).with(token));
+        mockMvc.perform(get("/api/task_statuses/" + testStatus.getId()).with(token))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -114,6 +119,12 @@ public class TaskStatusControllerTest {
         assertThat(updatedStatus).isNotNull();
         assertThat(updatedStatus.getName()).isEqualTo("hello2");
         assertThat(updatedStatus.getSlug()).isEqualTo(testStatus.getSlug());
+
+        mockMvc.perform(delete("/api/task_statuses/" + testStatus.getId()).with(token));
+        mockMvc.perform(put("/api/task_statuses/" + testStatus.getId()).with(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(data)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -123,5 +134,8 @@ public class TaskStatusControllerTest {
 
         TaskStatus destroyedStatus = taskStatusRepository.findById(testStatus.getId()).orElse(null);
         assertThat(destroyedStatus).isNull();
+
+        mockMvc.perform(delete("/api/task_statuses/" + testStatus.getId()).with(token))
+                .andExpect(status().isNotFound());
     }
 }

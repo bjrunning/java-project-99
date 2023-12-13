@@ -23,7 +23,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,13 +85,13 @@ public class TaskControllerTest {
                 .create();
         statusRepository.save(testStatus);
 
-        Label testLabel = Instancio.of(modelGenerator.getLabelModel())
+        testLabel = Instancio.of(modelGenerator.getLabelModel())
                 .create();
         labelRepository.save(testLabel);
 
         testTask.setTaskStatus(testStatus);
         testTask.setAssignee(testUser);
-        testTask.setLabels(new ArrayList<>(List.of(testLabel)));
+        testTask.setLabels(new HashSet<>(List.of(testLabel)));
         taskRepository.save(testTask);
 
         token = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
@@ -102,7 +103,8 @@ public class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String body = result.getResponse().getContentAsString();
+        String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        System.out.println(body);
         assertThatJson(body).and(
                 a -> a.node("title").isEqualTo(testTask.getName()),
                 a -> a.node("index").isEqualTo(testTask.getIndex()),
@@ -111,16 +113,31 @@ public class TaskControllerTest {
                 a -> a.node("assignee_id").isEqualTo(testTask.getAssignee().getId()),
                 a -> a.node("taskLabelIds").isArray()
         );
+
+        mockMvc.perform(delete("/api/tasks/" + testTask.getId()).with(token));
+        mockMvc.perform(get("/api/tasks/" + testTask.getId()).with(token))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     public void testIndex() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/tasks").with(token))
+        MvcResult result = mockMvc.perform(get("/api/tasks").with(token)
+                        .param("titleCont", testTask.getName())
+                        .param("assigneeId", String.valueOf(testTask.getAssignee().getId()))
+                        .param("status", testStatus.getSlug())
+                        .param("labelId", String.valueOf(testLabel.getId())))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).isArray().isNotEmpty();
+
+        MvcResult result2 = mockMvc.perform(get("/api/tasks").with(token)
+                        .param("assigneeId", "000"))
+                .andExpect(status().isOk())
+                .andReturn();
+        String body2 = result2.getResponse().getContentAsString();
+        assertThatJson(body2).isArray().isEmpty();
     }
 
     @Test
@@ -160,6 +177,12 @@ public class TaskControllerTest {
         assertThat(updatedTask).isNotNull();
         assertThat(updatedTask.getName()).isEqualTo("newTitle");
         assertThat(updatedTask.getIndex()).isEqualTo(testTask.getIndex());
+
+        mockMvc.perform(delete("/api/tasks/" + testTask.getId()).with(token));
+        mockMvc.perform(put("/api/tasks/" + testTask.getId()).with(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(data)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -169,6 +192,8 @@ public class TaskControllerTest {
 
         Task destroyedTask = taskRepository.findById(testTask.getId()).orElse(null);
         assertThat(destroyedTask).isNull();
-    }
 
+        mockMvc.perform(delete("/api/tasks/" + testTask.getId()).with(token))
+                .andExpect(status().isNotFound());
+    }
 }

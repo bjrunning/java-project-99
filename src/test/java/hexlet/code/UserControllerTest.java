@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,12 +68,16 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String body = result.getResponse().getContentAsString();
+        String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         assertThatJson(body).and(
                 a -> a.node("firstName").isEqualTo(testUser.getFirstName()),
                 a -> a.node("lastName").isEqualTo(testUser.getLastName()),
                 a -> a.node("email").isEqualTo((testUser.getEmail()))
         );
+
+        mockMvc.perform(delete("/api/users/" + testUser.getId()).with(token));
+        mockMvc.perform(get("/api/users/" + testUser.getId()).with(token))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -119,6 +124,10 @@ class UserControllerTest {
         assertThat(updatedUser).isNotNull();
         assertThat(updatedUser.getFirstName()).isEqualTo("Ruslan");
         assertThat(updatedUser.getLastName()).isEqualTo(testUser.getLastName());
+
+        mockMvc.perform(delete("/api/users/" + testUser.getId()).with(token));
+        mockMvc.perform(request)
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -128,6 +137,8 @@ class UserControllerTest {
 
         User destroyedUser = userRepository.findById(testUser.getId()).orElse(null);
         assertThat(destroyedUser).isNull();
-    }
 
+        mockMvc.perform(delete("/api/users/" + testUser.getId()).with(token))
+                .andExpect(status().isForbidden());
+    }
 }

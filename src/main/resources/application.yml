@@ -16,3 +16,7 @@ rsa:
 springdoc:
   swagger-ui:
     path: /swagger.html
+
+sentry:
+  dsn: https://bf1804c042e5bbef5320be11a9f8b255@o4506310589349888.ingest.sentry.io/4506388448935936
+  traces-sample-rate: 1.0

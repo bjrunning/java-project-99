@@ -6,6 +6,7 @@ plugins {
     checkstyle
     jacoco
     id("io.freefair.lombok") version "8.4"
+    id("io.sentry.jvm.gradle") version "4.0.0"
     id ("com.adarshr.test-logger") version "3.2.0"
     id("org.springframework.boot") version "3.1.5"
     id("io.spring.dependency-management") version "1.1.3"
@@ -48,6 +49,24 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+sentry {
+    includeSourceContext.set(true)
+
+    org.set("bjrunning")
+    projectName.set("task-manager")
+    authToken.set(System.getenv("SENTRY_AUTH_TOKEN"))
+}
+
+tasks.sentryBundleSourcesJava {
+    enabled = System.getenv("SENTRY_AUTH_TOKEN") != null
 }
 
 tasks.test {

@@ -7,24 +7,20 @@ import hexlet.code.exception.MethodNotAllowedException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
-import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class TaskStatusService {
 
-    @Autowired
-    private TaskStatusRepository statusRepository;
+    private final TaskStatusRepository statusRepository;
 
-    @Autowired
-    private TaskStatusMapper statusMapper;
-
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskStatusMapper statusMapper;
 
     public List<TaskStatusDTO> getAll() {
         List<TaskStatus> statuses = statusRepository.findAll();
@@ -54,10 +50,15 @@ public class TaskStatusService {
     }
 
     public void delete(Long id) {
-        if (!taskRepository.findByTaskStatusId(id).isEmpty()) {
+        TaskStatus status = statusRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task status with id " + id + "not found"));
+        if (!status.getTasks().isEmpty()) {
             throw new MethodNotAllowedException("You cannot delete a status. The status is associated with tasks.");
         }
-        statusRepository.deleteById(id);
+        try {
+            statusRepository.deleteById(id);
+        } catch (DataIntegrityViolationException ex) {
+            throw new MethodNotAllowedException("You cannot delete a status. The status is associated with tasks.");
+        }
     }
-
 }

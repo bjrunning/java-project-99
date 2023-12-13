@@ -9,6 +9,7 @@ import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
+import lombok.Getter;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -17,7 +18,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mapper(
         uses = {JsonNullableMapper.class, ReferenceMapper.class},
@@ -25,6 +28,8 @@ import java.util.List;
         componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
+
+@Getter
 public abstract class TaskMapper {
 
     @Autowired
@@ -33,11 +38,14 @@ public abstract class TaskMapper {
     @Autowired
     private LabelRepository labelRepository;
 
+    private final String defaultContent = "";
+
     @Mapping(source = "title", target = "name")
-    @Mapping(source = "content", target = "description")
     @Mapping(source = "status", target = "taskStatus")
     @Mapping(source = "assignee_id", target = "assignee")
     @Mapping(source = "taskLabelIds", target = "labels")
+    @Mapping(target = "description",
+            expression = "java(dto.getContent() == null ? getDefaultContent() : dto.getContent())")
     public abstract Task map(TaskCreateDTO dto);
 
     @Mapping(source = "name", target = "title")
@@ -59,11 +67,11 @@ public abstract class TaskMapper {
                 .orElseThrow(() -> new ResourceNotFoundException("TaskStatus with slug " + statusSlug + " not found"));
     }
 
-    public List<Label> toLabelList(List<Long> ids) {
-        return labelRepository.findAllById(ids);
+    public Set<Label> toLabelSet(List<Long> ids) {
+        return new HashSet<>(labelRepository.findAllById(ids));
     }
 
-    public List<Long> toLabelIdList(List<Label> labels) {
+    public List<Long> toLabelIdList(Set<Label> labels) {
         return labels.stream()
                 .map(l -> l.getId())
                 .toList();

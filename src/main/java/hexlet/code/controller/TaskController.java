@@ -2,6 +2,7 @@ package hexlet.code.controller;
 
 import hexlet.code.dto.TaskCreateDTO;
 import hexlet.code.dto.TaskDTO;
+import hexlet.code.dto.TaskParamsDTO;
 import hexlet.code.dto.TaskUpdateDTO;
 import hexlet.code.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,17 +28,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@AllArgsConstructor
 public class TaskController {
 
-    @Autowired
-    private TaskService taskService;
+    private final TaskService taskService;
 
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Get list of all tasks")
     @ApiResponse(responseCode = "200", description = "List of all tasks")
     @GetMapping("")
-    public ResponseEntity<List<TaskDTO>> index() {
-        List<TaskDTO> taskDTOList = taskService.getAll();
+    public ResponseEntity<List<TaskDTO>> index(
+            @Parameter(description = "Options for filtering tasks")
+            TaskParamsDTO params) {
+        List<TaskDTO> taskDTOList = taskService.getAll(params);
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(taskDTOList.size()))
                 .body(taskDTOList);
@@ -84,7 +87,10 @@ public class TaskController {
 
     @SecurityRequirement(name = "JWT")
     @Operation(summary = "Delete task by its id")
-    @ApiResponse(responseCode = "204", description = "Task deleted")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Task deleted"),
+            @ApiResponse(responseCode = "404", description = "Task with that id not found")
+    })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(

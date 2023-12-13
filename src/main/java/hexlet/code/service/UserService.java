@@ -10,26 +10,24 @@ import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
-    @Autowired
-    private PasswordEncoder encoder;
+    private final PasswordEncoder encoder;
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
 
     public List<UserDTO> getAll() {
         List<User> users = userRepository.findAll();
@@ -70,6 +68,10 @@ public class UserService {
         if (!taskRepository.findByAssigneeId(id).isEmpty()) {
             throw new MethodNotAllowedException("You cannot delete a user. The user is associated with tasks.");
         }
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+        } catch (DataIntegrityViolationException ex) {
+            throw new MethodNotAllowedException("You cannot delete a user. The user is associated with tasks.");
+        }
     }
 }

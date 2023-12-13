@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,10 +64,13 @@ public class LabelControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String body = result.getResponse().getContentAsString();
+        String body = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         assertThatJson(body).and(
                 a -> a.node("name").isEqualTo(testLabel.getName())
         );
+
+        mockMvc.perform(delete("/api/labels/" + testLabel.getId()).with(token));
+        mockMvc.perform(get("/api/labels/" + testLabel.getId()).with(token));
     }
 
     @Test
@@ -110,6 +114,12 @@ public class LabelControllerTest {
         Label updatedLabel = labelRepository.findById(testLabel.getId()).orElse(null);
         assertThat(updatedLabel).isNotNull();
         assertThat(updatedLabel.getName()).isEqualTo("hello2");
+
+        mockMvc.perform(delete("/api/labels/" + testLabel.getId()).with(token));
+        mockMvc.perform(put("/api/labels/" + testLabel.getId()).with(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(data)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -119,6 +129,8 @@ public class LabelControllerTest {
 
         Label destroyedLabel = labelRepository.findById(testLabel.getId()).orElse(null);
         assertThat(destroyedLabel).isNull();
-    }
 
+        mockMvc.perform(delete("/api/labels/" + testLabel.getId()).with(token))
+                .andExpect(status().isNotFound());
+    }
 }
